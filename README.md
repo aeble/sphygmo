@@ -32,16 +32,33 @@ Then take a measurement. The device connects on its own around each measurement 
 sends any readings it buffered while nobody was listening. Each reading is appended to the
 file before it is acknowledged.
 
-To pair a device (first use, or after it shows `E1`), put it into pairing mode while sphygmo
-is running. On the visomat: hold the Bluetooth button.
+Pair each device once:
+
+```bash
+.venv/bin/sphygmo --pair
+```
+
+then put the device into pairing mode (visomat: hold the Bluetooth button). Paired devices
+are remembered in `~/.config/sphygmo/devices.json`; run without `--pair` afterwards. Devices
+that are not paired get no response and their readings are ignored.
 
 On macOS the terminal needs Bluetooth permission (System Settings, Privacy & Security,
 Bluetooth).
 
+## Security
+
+Anything in radio range can advertise a matching name and send bytes. sphygmo serves only
+paired devices, accepts pairing only with `--pair`, bounds each session to 120 s, skips
+malformed packets, keeps control characters out of the log and creates its files readable
+by the owner only. The protocols have no authentication, though: a device that copies the
+serial number of a paired one is still accepted. Pair in a quiet moment and review readings
+before exporting them.
+
 ## Adding a device
 
 Implement `sphygmo.drivers.base.Driver`: `matches()` decides from the advertisement,
-`run()` drives one connection and awaits `emit()` for every reading. Document the protocol
+`run()` drives one connection, serves only devices in the trust store and awaits `emit()`
+for every reading. Treat every packet as hostile input. Document the protocol
 under `docs/protocols/`, with an anonymised capture under `docs/captures/` and tests built
 from it.
 

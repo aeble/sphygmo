@@ -16,6 +16,6 @@ Upper-arm monitor, two users, 31 stored readings per the manual.
 
 - The vendor app is MedM. Uninstall it, or switch Bluetooth off on the phone, while sphygmo
   is listening; whichever side connects first gets the readings.
-- A bound device keeps working with sphygmo without re-pairing, as long as you connect with
-  the same password; the bind ID is only checked at pairing time.
+- A device already bound to MedM works with sphygmo too, the bind ID is only exchanged at
+  pairing time. sphygmo still wants to see one pairing (`--pair`) before it serves the device.
 - Readings stored before sphygmo was used cannot be retrieved over Bluetooth.

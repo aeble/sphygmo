@@ -15,7 +15,9 @@ class JsonlSink:
     async def write(self, m: Measurement) -> None:
         # The device marks a record as sent once the indication is confirmed, so it is
         # never re-sent: persist before returning.
-        with self.path.open("a", encoding="utf-8") as f:
+        # Health data: readable by the owner only
+        fd = os.open(self.path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
+        with os.fdopen(fd, "a", encoding="utf-8") as f:
             f.write(json.dumps(m.to_dict(), ensure_ascii=False) + "\n")
             f.flush()
             os.fsync(f.fileno())

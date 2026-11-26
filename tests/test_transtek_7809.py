@@ -3,6 +3,7 @@ import asyncio
 from datetime import datetime, timezone
 
 from sphygmo.drivers import transtek_7809 as t
+from sphygmo.trust import TrustStore
 
 PASSWORD = bytes.fromhex("a1b2c3d4")
 SERIAL = b"A1B2C3D4E5F6"
@@ -31,13 +32,14 @@ class FakeClient:
     def __init__(self):
         self.callbacks = {}
         self.writes = []
+        self.serial = SERIAL
 
     async def start_notify(self, char, cb):
         self.callbacks[char] = cb
 
     async def read_gatt_char(self, char):
         assert char == t.SERIAL_NUMBER
-        return SERIAL
+        return self.serial
 
     async def write_gatt_char(self, char, data, response=True):
         assert char == t.CMD
@@ -47,14 +49,14 @@ class FakeClient:
         self.callbacks[char](None, bytearray(data))
 
 
-async def _session(packets, monkeypatch=None):
+async def _session(packets, trust, pair=False):
     client, disconnected, emitted = FakeClient(), asyncio.Event(), []
 
     async def emit(m):
         emitted.append(m)
 
     driver = t.Transtek7809(clock=lambda: datetime(2026, 11, 26, 12, 22, 9))
-    task = asyncio.create_task(driver.run(client, disconnected, emit))
+    task = asyncio.create_task(driver.run(client, disconnected, emit, trust, pair))
     await asyncio.sleep(0)
     for char, data in packets:
         client.indicate(char, data)
@@ -64,22 +66,24 @@ async def _session(packets, monkeypatch=None):
     return client.writes, emitted
 
 
-def test_sync_session():
+def test_sync_session(tmp_path):
+    trust = TrustStore(tmp_path / "devices.json")
+    trust.add("transtek_7809", "A1B2C3D4E5F6")
     writes, emitted = asyncio.run(_session([
         (t.STATUS, bytes.fromhex("a11fcae970") + bytes(15)),
         (t.MEASUREMENT, READING_USER1),
-    ]))
+    ], trust))
     assert writes == [bytes.fromhex("20be782aa4"), bytes.fromhex("0271e9ca1f"), b"\x22"]
     assert [m.systolic for m in emitted] == [121]
     assert emitted[0].device_id == "A1B2C3D4E5F6"
 
 
-def test_pairing_session(monkeypatch):
+def test_pairing_session(monkeypatch, tmp_path):
     monkeypatch.setattr(t, "PAIRING_DONE_DELAY", 0)
     writes, emitted = asyncio.run(_session([
         (t.STATUS, bytes.fromhex("a0a1b2c3d4") + bytes(15)),
         (t.STATUS, bytes.fromhex("a11fcae960") + bytes(15)),
-    ]))
+    ], TrustStore(tmp_path / "devices.json"), pair=True))
     assert writes == [bytes.fromhex("21ff000001"), bytes.fromhex("20be782ab4"),
                       bytes.fromhex("0271e9ca1f"), b"\x22"]
     assert emitted == []
