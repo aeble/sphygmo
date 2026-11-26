@@ -17,7 +17,7 @@ sinks for Home Assistant, FHIR and Apple Health (via an iOS shortcut).
 
 | Device | Also sold as | Status | Driver |
 |---|---|---|---|
-| [visomat cardiovision](docs/devices/visomat-cardiovision.md) | iProven BPM-2244 BT | works: pairing, live and buffered readings, 2 users | `transtek_7809` |
+| [visomat cardiovision](https://github.com/aeble/sphygmo/blob/main/docs/devices/visomat-cardiovision.md) | iProven BPM-2244 BT | works: pairing, live and buffered readings, 2 users | `transtek_7809` |
 | Beurer BM 81 easyLock | | wanted | |
 | Omron X7 Smart (AFib) | | wanted | |
 | Withings BPM Connect | | BLE protocol unknown; readings also go to the Withings cloud over Wi-Fi, which has a public API | |
@@ -27,8 +27,8 @@ Other Transtek/Lifesense monitors that advertise a name like `1802A0` and expose
 `0x7809` probably work too.
 
 **Have a different monitor?** A five-minute `sphygmo probe` run, or a capture of the vendor
-app, is all it takes to start. See [docs/capturing.md](docs/capturing.md) and open a device
-report. [Related projects](docs/related-projects.md) cover some other brands.
+app, is all it takes to start. See [docs/capturing.md](https://github.com/aeble/sphygmo/blob/main/docs/capturing.md) and open a device
+report. [Related projects](https://github.com/aeble/sphygmo/blob/main/docs/related-projects.md) cover some other brands.
 
 ## Usage
 
@@ -71,7 +71,7 @@ before exporting them.
 
 Read-only: lists services and characteristics, records packets during a measurement and
 writes `sphygmo-probe.json` without Bluetooth address and serial number. Details in
-[docs/capturing.md](docs/capturing.md).
+[docs/capturing.md](https://github.com/aeble/sphygmo/blob/main/docs/capturing.md).
 
 ## Adding a device
 
