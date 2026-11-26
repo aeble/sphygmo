@@ -1,3 +1,5 @@
+<p align="center"><img src="https://raw.githubusercontent.com/aeble/sphygmo/main/docs/logo/sphygmo.png" width="160" alt="sphygmo logo: cartoon giraffe wearing a blood pressure cuff"></p>
+
 # sphygmo
 
 Read Bluetooth LE blood pressure monitors without the vendor app, and keep the readings
