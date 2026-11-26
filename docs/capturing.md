@@ -1,0 +1,101 @@
+# Help add your blood pressure monitor
+
+Every supported device started with someone recording what their monitor says. You do not
+need to write code. Three levels, pick what you can:
+
+1. **Survey** with `sphygmo probe` (5 minutes, no vendor app needed)
+2. **Capture** the vendor app talking to the monitor (30 minutes)
+3. **Confirm** that a supported device works for you
+
+Then open an issue with the matching template.
+
+## 1. Survey: `sphygmo probe`
+
+```bash
+python3 -m venv .venv && .venv/bin/pip install git+https://github.com/aeble/sphygmo
+.venv/bin/sphygmo probe
+```
+
+Start a measurement (most monitors only advertise around a measurement), pick your monitor
+from the list, then let the measurement finish. The probe connects, lists all services and
+characteristics, reads what is readable and records every packet for two minutes. It never
+writes to the device.
+
+If the monitor disappears before you have picked it, use `--match` with part of its
+advertised name, for example `sphygmo probe --match 02A0`, and start a measurement after
+launching the command.
+
+The report `sphygmo-probe.json` contains no Bluetooth address, and the serial number and
+system ID are overwritten with `ee` bytes wherever they appear. It **may contain your
+readings**; see [privacy](#privacy).
+
+For a monitor that implements the standard Blood Pressure Service (0x1810) the probe often
+records complete readings already. For vendor protocols it shows the structure, and a
+capture is the next step.
+
+## 2. Capture the vendor app
+
+Close sphygmo while capturing, or it will compete with the app.
+
+### iPhone
+
+1. On developer.apple.com, under Profiles and Logs, install the **Bluetooth for iOS** profile
+   on the iPhone (free Apple account is enough). **Restart the iPhone.**
+2. On a Mac install **PacketLogger** from "Additional Tools for Xcode" (developer.apple.com,
+   Downloads).
+3. Connect the iPhone by cable, unlock it, trust the computer.
+4. PacketLogger: **File, New iOS Trace**. Plain "New" records the Mac instead; if nothing
+   scrolls by, that is the usual reason.
+5. In the vendor app, remove the monitor, then pair it again. Take one or two measurements
+   and let the app sync them.
+6. File, Save, as `.pklg`.
+
+### Android
+
+1. Enable Developer options, then **Enable Bluetooth HCI snoop log**. Toggle Bluetooth off
+   and on.
+2. Remove the monitor in the vendor app, pair again, measure, sync.
+3. Create a bug report (Developer options, Take bug report) and copy it to a computer. The
+   log is inside the zip, usually under `FS/data/log/bt/btsnoop_hci.log` or
+   `FS/data/misc/bluetooth/logs/`.
+4. Switch the snoop log off again.
+
+### Write down
+
+The capture is hard to decode without these notes:
+
+- every value the display showed (systolic, diastolic, pulse, any symbols), with the time
+- which user slot was selected
+- what you did and when: pair, measure, sync, error codes on the display
+
+### Extract before sharing
+
+A raw capture holds **all** Bluetooth traffic of the phone: your watch, headphones, their
+names and addresses. Do not attach it publicly. Extract the monitor's connections instead
+(needs Wireshark):
+
+```bash
+tools/extract_capture.py capture.pklg                       # lists connections
+tools/extract_capture.py capture.pklg --conn 0x0051 --conn 0x0053 \
+    --serial <serial number> > my-monitor.txt
+```
+
+Pairing and each later sync are separate connections; include them all. The serial number
+shows up in the connection list if the app read it.
+
+Some protocols derive a password from the serial number and use it in a handshake. The tool
+overwrites the serial number and its first bytes, but values computed from it (for example
+a challenge response) remain. If you are unsure, share the capture privately with a
+maintainer instead.
+
+## 3. Confirm a device
+
+If your device is listed as supported, a short "it works" report with the model, firmware
+(the probe shows it) and what you tested helps others.
+
+## Privacy
+
+Blood pressure readings are health data. Decoding a format needs real readings that match
+the display, so they stay in reports and captures. If you do not want your own readings in
+a public issue, take a few throwaway measurements just for the report, or ask in the issue
+to share the files privately.

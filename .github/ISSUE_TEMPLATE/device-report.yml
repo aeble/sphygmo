@@ -1,0 +1,43 @@
+name: Device report
+description: Help add support for a blood pressure monitor
+title: "Device: <brand> <model>"
+labels: ["device"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks! See [docs/capturing.md](../blob/main/docs/capturing.md) for how to create a probe report or a capture.
+        Reports and captures may contain your readings. Do not attach raw .pklg or btsnoop files: they contain all Bluetooth traffic of your phone.
+  - type: input
+    id: model
+    attributes:
+      label: Brand and model
+      description: As printed on the device, plus the model number from the label if there is one
+      placeholder: "Beurer BM 81 easyLock (65511)"
+    validations:
+      required: true
+  - type: input
+    id: rebrands
+    attributes:
+      label: Also sold as
+      description: Identical devices under other names, if you know any
+  - type: input
+    id: app
+    attributes:
+      label: Vendor app
+      placeholder: "beurer HealthManager Pro"
+  - type: textarea
+    id: probe
+    attributes:
+      label: Probe report
+      description: Attach or paste sphygmo-probe.json
+  - type: textarea
+    id: capture
+    attributes:
+      label: Capture
+      description: Output of tools/extract_capture.py, plus your notes (values shown on the display, times, user slot, what you did)
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: Error codes, number of users and memory slots, Wi-Fi, etc.

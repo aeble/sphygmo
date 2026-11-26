@@ -1,25 +1,33 @@
 # sphygmo
 
-Receive readings from Bluetooth LE blood pressure monitors without the vendor app, and
-store them somewhere you control.
+Read Bluetooth LE blood pressure monitors without the vendor app, and keep the readings
+yourself. sphygmo talks to the monitor directly (for example a visomat cardiovision or
+iProven BPM-2244 BT, which normally need the MedM app) and writes every reading to a local
+file, ready for Home Assistant, FHIR or Apple Health.
 
 sphygmo has two halves:
 
 - **Drivers** speak a device protocol and turn packets into a common `Measurement`.
 - **Sinks** store or export measurements. Today there is one: a JSON Lines file.
 
-Planned next: a driver for the standard Bluetooth Blood Pressure Service (0x1810, with
-record access for stored history), and sinks for Home Assistant, FHIR and Apple Health
-(via an iOS shortcut).
+Planned next: a driver for the standard Bluetooth Blood Pressure Service (0x1810), and
+sinks for Home Assistant, FHIR and Apple Health (via an iOS shortcut).
 
-## Supported devices
+## Devices
 
-| Device | Driver | Notes |
-|---|---|---|
-| visomat cardiovision (= iProven BPM-2244 BT) | `transtek_7809` | [device notes](docs/devices/visomat-cardiovision.md) |
+| Device | Also sold as | Status | Driver |
+|---|---|---|---|
+| [visomat cardiovision](docs/devices/visomat-cardiovision.md) | iProven BPM-2244 BT | works: pairing, live and buffered readings, 2 users | `transtek_7809` |
+| Beurer BM 81 easyLock | | wanted | |
+| Omron X7 Smart (AFib) | | wanted | |
+| Withings BPM Connect | | wanted (Wi-Fi, cloud API) | |
 
 Other Transtek/Lifesense monitors that advertise a name like `1802A0` and expose service
-`0x7809` probably work too. Reports welcome.
+`0x7809` probably work too.
+
+**Have a different monitor?** A five-minute `sphygmo probe` run, or a capture of the vendor
+app, is all it takes to start. See [docs/capturing.md](docs/capturing.md) and open a device
+report. [Related projects](docs/related-projects.md) cover some other brands.
 
 ## Usage
 
@@ -53,6 +61,16 @@ malformed packets, keeps control characters out of the log and creates its files
 by the owner only. The protocols have no authentication, though: a device that copies the
 serial number of a paired one is still accepted. Pair in a quiet moment and review readings
 before exporting them.
+
+## Survey an unsupported monitor
+
+```bash
+.venv/bin/sphygmo probe
+```
+
+Read-only: lists services and characteristics, records packets during a measurement and
+writes `sphygmo-probe.json` without Bluetooth address and serial number. Details in
+[docs/capturing.md](docs/capturing.md).
 
 ## Adding a device
 

@@ -10,6 +10,22 @@ readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.11"
 dependencies = ["bleak>=1.0"]
+keywords = ["blood pressure", "blood pressure monitor", "bluetooth low energy", "ble", "bleak",
+            "reverse engineering", "home assistant", "apple health", "healthkit", "fhir",
+            "transtek", "lifesense", "visomat", "iproven", "medm"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: System :: Hardware",
+]
+
+[project.urls]
+Homepage = "https://github.com/aeble/sphygmo"
+Issues = "https://github.com/aeble/sphygmo/issues"
 
 [project.optional-dependencies]
 test = ["pytest"]

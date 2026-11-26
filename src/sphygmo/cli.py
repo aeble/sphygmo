@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
+import sys
 from pathlib import Path
 
 from .drivers.transtek_7809 import Transtek7809
@@ -13,8 +14,24 @@ from .sinks.jsonl import JsonlSink
 from .trust import TrustStore, default_path
 
 
+def probe_main(argv: list[str]) -> None:
+    from .probe import run
+    ap = argparse.ArgumentParser(prog="sphygmo probe",
+                                 description="Read-only survey of a monitor, for a device report.")
+    ap.add_argument("--out", type=Path, default=Path("sphygmo-probe.json"), help="report file (default: %(default)s)")
+    ap.add_argument("--scan", type=float, default=15, help="scan seconds (default: %(default)s)")
+    ap.add_argument("--listen", type=float, default=120, help="seconds to record packets (default: %(default)s)")
+    ap.add_argument("--match", help="pick the first device whose name contains this text, without asking")
+    a = ap.parse_args(argv)
+    logging.basicConfig(level=logging.WARNING)
+    run(a.out, a.scan, a.listen, a.match)
+
+
 def main() -> None:
-    ap = argparse.ArgumentParser(prog="sphygmo", description="Receive blood pressure readings over BLE.")
+    if sys.argv[1:2] == ["probe"]:
+        return probe_main(sys.argv[2:])
+    ap = argparse.ArgumentParser(prog="sphygmo", description="Receive blood pressure readings over BLE.",
+                                 epilog="Run 'sphygmo probe' to survey an unsupported monitor.")
     ap.add_argument("--jsonl", type=Path, default=Path("measurements.jsonl"),
                     help="file to append readings to (default: %(default)s)")
     ap.add_argument("--transtek-bind-id", default="ff000001",
