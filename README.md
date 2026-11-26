@@ -1,6 +1,4 @@
-<p align="center"><img src="https://raw.githubusercontent.com/aeble/sphygmo/main/docs/logo/sphygmo.png" width="160" alt="sphygmo logo: cartoon giraffe wearing a blood pressure cuff"></p>
-
-# sphygmo
+![sphygmo: Bluetooth blood pressure monitors, without the vendor app. Cartoon giraffe wearing a blood pressure cuff](https://raw.githubusercontent.com/aeble/sphygmo/main/docs/logo/social-preview.png)
 
 Read Bluetooth LE blood pressure monitors without the vendor app, and keep the readings
 yourself. sphygmo talks to the monitor directly (for example a visomat cardiovision or
