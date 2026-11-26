@@ -1,0 +1,37 @@
+# Transtek 0x7809: MedM app, pairing then one reading
+# Extracted from an iOS PacketLogger capture (ATT layer, device connection only).
+# Anonymised: serial number, password, the verify responses derived from them, and the
+# reading are replaced by fake values; challenges, time sync and timing are original.
+# Handles on iOS: 0x0b=8a91 0x0c=8a91 CCCD 0x0e=8a90 0x13=8a81 0x15=8a82 0x16=8a82 CCCD
+# Columns: seconds, direction (-> app to device), characteristic, ATT op, value
+#
+# Connection 1: pairing mode
+  0.000  -> 8a91 CCCD        write req   02 00
+  0.115  <- 8a90             read rsp    00 00
+  0.115  -> 8a82 CCCD        write req   02 00
+  0.174  <- 8a82             indication  a0 a1 b2 c3 d4 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0.234  <- 2a25 serial      read rsp    41 31 42 32 43 33 44 34 45 35 46 36  'A1B2C3D4E5F6'
+  0.293  <- 2a27 hardware    read rsp    42 32  'B2'
+  0.353  <- 2a26 firmware    read rsp    32 2e 32  '2.2'
+  0.414  <- 2a29 manufacturer read rsp    54 72 61 6e 73 74 65 6b  'Transtek'
+  0.473  <- 2a28 software    read rsp    41 32  'A2'
+  0.473  -> 8a81             write req   21 ff 00 00 01
+  0.533  <- 8a82             indication  a1 1f ca e9 60 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0.534  -> 8a81             write req   20 be 78 2a b4
+  1.037  -> 8a81             write req   02 60 e9 ca 1f
+  2.540  -> 8a81             write req   22
+#
+# Connection 2: measurement (reading arrives ~30 s later)
+ 16.935  -> 8a91 CCCD        write req   02 00
+ 17.032  <- 8a90             read rsp    00 00
+ 17.033  -> 8a82 CCCD        write req   02 00
+ 17.094  <- 8a82             indication  a1 1f ca e9 70 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ 17.152  <- 2a25 serial      read rsp    41 31 42 32 43 33 44 34 45 35 46 36  'A1B2C3D4E5F6'
+ 17.212  <- 2a27 hardware    read rsp    42 32  'B2'
+ 17.272  <- 2a26 firmware    read rsp    32 2e 32  '2.2'
+ 17.333  <- 2a29 manufacturer read rsp    54 72 61 6e 73 74 65 6b  'Transtek'
+ 17.392  <- 2a28 software    read rsp    41 32  'A2'
+ 17.392  -> 8a81             write req   20 be 78 2a a4
+ 17.601  -> 8a81             write req   02 71 e9 ca 1f
+ 46.615  <- 8a91             indication  3e 79 00 4f 00 5d 00 8e e9 ca 1f 44 00 00 00 00 00
+ 47.633  -> 8a81             write req   22
