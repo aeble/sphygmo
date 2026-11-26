@@ -10,6 +10,9 @@ import os
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Readings remembered per device; more than any monitor's memory
+MAX_SEEN = 1000
+
 
 def default_path() -> Path:
     base = os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config"
@@ -33,6 +36,18 @@ class TrustStore:
 
     def add(self, driver: str, device_id: str) -> None:
         self.devices[self._key(driver, device_id)] = {"paired_at": datetime.now(timezone.utc).isoformat()}
+        self._save()
+
+    def seen(self, driver: str, device_id: str, reading: str) -> bool:
+        """True if this reading was already delivered. For devices that resend their memory."""
+        return reading in self.devices.get(self._key(driver, device_id), {}).get("seen", [])
+
+    def remember(self, driver: str, device_id: str, reading: str) -> None:
+        entry = self.devices.setdefault(self._key(driver, device_id), {})
+        entry["seen"] = (entry.get("seen", []) + [reading])[-MAX_SEEN:]
+        self._save()
+
+    def _save(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         tmp = self.path.with_suffix(".tmp")
         fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)

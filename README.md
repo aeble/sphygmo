@@ -10,15 +10,15 @@ sphygmo has two halves:
 - **Drivers** speak a device protocol and turn packets into a common `Measurement`.
 - **Sinks** store or export measurements. Today there is one: a JSON Lines file.
 
-Planned next: a driver for the standard Bluetooth Blood Pressure Service (0x1810), and
-sinks for Home Assistant, FHIR and Apple Health (via an iOS shortcut).
+Planned next: sinks for Home Assistant, FHIR and Apple Health (via an iOS shortcut).
 
 ## Devices
 
 | Device | Also sold as | Status | Driver |
 |---|---|---|---|
 | [visomat cardiovision](https://github.com/aeble/sphygmo/blob/main/docs/devices/visomat-cardiovision.md) | iProven BPM-2244 BT | works: pairing, live and buffered readings, 2 users | `transtek_7809` |
-| Beurer BM 81 easyLock | | wanted | |
+| Beurer BM 81 easyLock | | standard profile expected; untested, reports welcome | `bluetooth_bps` |
+| any monitor with the [standard Blood Pressure Service](https://github.com/aeble/sphygmo/blob/main/docs/protocols/bluetooth-bps.md) (0x1810) | | driver written from the specification; untested on real devices | `bluetooth_bps` |
 | Omron X7 Smart (AFib) | | wanted | |
 | Withings BPM Connect | | BLE protocol unknown; readings also go to the Withings cloud over Wi-Fi, which has a public API | |
 | Hilo (formerly Aktiia) | | cuffless bracelet, BLE probably encrypted; not planned | |
