@@ -7,6 +7,7 @@ import logging
 import sys
 from pathlib import Path
 
+from .drivers.bluetooth_bps import BluetoothBPS
 from .drivers.transtek_7809 import Transtek7809
 from .hub import listen
 from .model import Measurement
@@ -57,7 +58,7 @@ def main() -> None:
     drivers = [Transtek7809(
         bind_id=bytes.fromhex(a.transtek_bind_id),
         password=bytes.fromhex(a.transtek_password) if a.transtek_password else None,
-    )]
+    ), BluetoothBPS()]
     try:
         asyncio.run(listen(drivers, emit, TrustStore(a.devices), a.pair))
     except KeyboardInterrupt:
