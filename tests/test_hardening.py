@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 
 from sphygmo import hub
 from sphygmo.drivers import transtek_7809 as t
+from sphygmo.drivers.base import Refused
 from sphygmo.sinks.jsonl import JsonlSink
 from sphygmo.trust import TrustStore
 
@@ -16,7 +17,7 @@ A1 = bytes.fromhex("a11fcae970") + bytes(15)
 A0 = bytes.fromhex("a0a1b2c3d4") + bytes(15)
 
 
-async def _run(packets, trust, pair=False, serial=SERIAL):
+async def _run(packets, trust, pair=False, serial=SERIAL, expect_refused=False):
     client, disconnected, emitted = FakeClient(), asyncio.Event(), []
     client.serial = serial
 
@@ -31,19 +32,26 @@ async def _run(packets, trust, pair=False, serial=SERIAL):
             client.indicate(char, data)
         await asyncio.sleep(0.01)
     disconnected.set()
+    if expect_refused:
+        try:
+            await task
+        except Refused:
+            return client.writes, emitted
+        raise AssertionError("expected Refused")
     await task
     return client.writes, emitted
 
 
 def test_unknown_device_gets_no_response(tmp_path):
     trust = TrustStore(tmp_path / "devices.json")
-    writes, emitted = asyncio.run(_run([(t.STATUS, A1), (t.MEASUREMENT, READING_USER1)], trust))
+    writes, emitted = asyncio.run(_run([(t.STATUS, A1), (t.MEASUREMENT, READING_USER1)], trust,
+                                       expect_refused=True))
     assert writes == [] and emitted == []
 
 
 def test_pairing_refused_without_pair_mode(tmp_path):
     trust = TrustStore(tmp_path / "devices.json")
-    writes, _ = asyncio.run(_run([(t.STATUS, A0), (t.STATUS, A1)], trust))
+    writes, _ = asyncio.run(_run([(t.STATUS, A0), (t.STATUS, A1)], trust, expect_refused=True))
     assert writes == []
     assert not trust.is_known("transtek_7809", "A1B2C3D4E5F6")
 
@@ -120,3 +128,13 @@ def test_jsonl_file_is_private(tmp_path):
     path = tmp_path / "m.jsonl"
     asyncio.run(JsonlSink(path).write(t.parse_measurement(READING_USER1, datetime.now(timezone.utc))))
     assert stat.S_IMODE(os.stat(path).st_mode) == 0o600
+
+
+def test_cooldown_blocks_refused_device_but_not_its_pairing_mode():
+    now = [1000.0]
+    c = hub.Cooldown(seconds=300, clock=lambda: now[0])
+    c.block("AA", "0802A0FF000002")
+    assert c.blocked("AA", "0802A0FF000002")
+    assert not c.blocked("AA", "1802A0")  # same device, now in pairing mode
+    now[0] += 301
+    assert not c.blocked("AA", "0802A0FF000002")

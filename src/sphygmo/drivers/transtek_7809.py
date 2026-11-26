@@ -13,7 +13,7 @@ from datetime import datetime, timedelta, timezone
 
 from ..model import Measurement
 from ..trust import TrustStore
-from .base import Driver, Emit
+from .base import Driver, Emit, Refused
 
 log = logging.getLogger(__name__)
 
@@ -123,16 +123,14 @@ class Transtek7809(Driver):
                     log.warning("empty packet on %s", char[4:8])
                 elif char == STATUS and data[0] == PKT_PASSWORD and len(data) >= 5:
                     if not pair:
-                        log.warning("device %s asks to pair; run with --pair to allow it", serial)
-                        continue
+                        raise Refused(f"device {serial} asks to pair; run with --pair to allow it")
                     pairing = True
                     password = data[1:5]
                     log.info("pairing %s, binding as %s", serial, self.bind_id.hex())
                     await write(bytes([OP_BIND]) + self.bind_id)
                 elif char == STATUS and data[0] == PKT_CHALLENGE and len(data) >= 5:
                     if not (known or pairing):
-                        log.warning("unknown device %s; pair it first with --pair", serial)
-                        return
+                        raise Refused(f"unknown device {serial}; pair it first with --pair")
                     await write(verify_response(data[1:5], password))
                     await write(time_command(self.clock()))
                     if pairing:

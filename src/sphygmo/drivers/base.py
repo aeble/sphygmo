@@ -14,6 +14,10 @@ from ..trust import TrustStore
 Emit = Callable[[Measurement], Awaitable[None]]
 
 
+class Refused(Exception):
+    """The driver turned the device away (not paired). The hub backs off from it."""
+
+
 class Driver(ABC):
     name: str
 

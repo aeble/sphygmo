@@ -35,7 +35,7 @@ def main() -> None:
 
     async def emit(m: Measurement) -> None:
         await sink.write(m)
-        print(f"{m.measured_at}  user {m.user}  {m.systolic}/{m.diastolic} {m.unit}  pulse {m.pulse}")
+        print(f"{m.measured_at}  user {m.user}  {m.systolic}/{m.diastolic} {m.unit}  pulse {m.pulse}", flush=True)
 
     drivers = [Transtek7809(
         bind_id=bytes.fromhex(a.transtek_bind_id),
