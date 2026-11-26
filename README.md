@@ -32,10 +32,21 @@ report. [Related projects](https://github.com/aeble/sphygmo/blob/main/docs/relat
 
 ## Usage
 
+With [uv](https://docs.astral.sh/uv/):
+
 ```bash
-python3 -m venv .venv && .venv/bin/pip install -e .
-.venv/bin/sphygmo --jsonl measurements.jsonl
+uv tool install sphygmo
+sphygmo --jsonl measurements.jsonl
 ```
+
+Without uv, in a virtual environment:
+
+```bash
+python3 -m venv ~/.venvs/sphygmo && ~/.venvs/sphygmo/bin/pip install sphygmo
+~/.venvs/sphygmo/bin/sphygmo --jsonl measurements.jsonl
+```
+
+From a checkout of this repository, `uv run sphygmo` runs the current code.
 
 Then take a measurement. The device connects on its own around each measurement and also
 sends any readings it buffered while nobody was listening. Each reading is appended to the
@@ -44,7 +55,7 @@ file before it is acknowledged.
 Pair each device once:
 
 ```bash
-.venv/bin/sphygmo --pair
+sphygmo --pair
 ```
 
 then put the device into pairing mode (visomat: hold the Bluetooth button). Paired devices
@@ -66,7 +77,7 @@ before exporting them.
 ## Survey an unsupported monitor
 
 ```bash
-.venv/bin/sphygmo probe
+uvx sphygmo probe
 ```
 
 Read-only: lists services and characteristics, records packets during a measurement and
