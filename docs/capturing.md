@@ -12,8 +12,15 @@ Then open an issue with the matching template.
 ## 1. Survey: `sphygmo probe`
 
 ```bash
-python3 -m venv .venv && .venv/bin/pip install git+https://github.com/aeble/sphygmo
-.venv/bin/sphygmo probe
+uvx sphygmo probe
+```
+
+`uvx` runs it without installing anything permanently ([uv](https://docs.astral.sh/uv/)).
+Without uv:
+
+```bash
+python3 -m venv ~/.venvs/sphygmo && ~/.venvs/sphygmo/bin/pip install sphygmo
+~/.venvs/sphygmo/bin/sphygmo probe
 ```
 
 Start a measurement (most monitors only advertise around a measurement), pick your monitor
