@@ -20,7 +20,8 @@ sinks for Home Assistant, FHIR and Apple Health (via an iOS shortcut).
 | [visomat cardiovision](docs/devices/visomat-cardiovision.md) | iProven BPM-2244 BT | works: pairing, live and buffered readings, 2 users | `transtek_7809` |
 | Beurer BM 81 easyLock | | wanted | |
 | Omron X7 Smart (AFib) | | wanted | |
-| Withings BPM Connect | | wanted (Wi-Fi, cloud API) | |
+| Withings BPM Connect | | BLE protocol unknown; readings also go to the Withings cloud over Wi-Fi, which has a public API | |
+| Hilo (formerly Aktiia) | | cuffless bracelet, BLE probably encrypted; not planned | |
 
 Other Transtek/Lifesense monitors that advertise a name like `1802A0` and expose service
 `0x7809` probably work too.
