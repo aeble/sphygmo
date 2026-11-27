@@ -48,9 +48,15 @@ python3 -m venv ~/.venvs/sphygmo && ~/.venvs/sphygmo/bin/pip install sphygmo
 
 From a checkout of this repository, `uv run sphygmo` runs the current code.
 
-Then take a measurement. The device connects on its own around each measurement and also
-sends any readings it buffered while nobody was listening. Each reading is appended to the
-file before it is acknowledged.
+Then take a measurement. Most monitors advertise only around a measurement, and sphygmo
+connects while they do. What happens next depends on the device; the device pages in the
+table above have the details. For example:
+
+- The visomat cardiovision connects by itself, also sends readings it buffered while nobody
+  was listening, and gets each one acknowledged only after it is in the file.
+- With the standard Blood Pressure Service, the Bluetooth stack acknowledges a reading before
+  sphygmo stores it. Many of these monitors resend their whole memory on each connection;
+  sphygmo skips readings it has already stored.
 
 Pair each device once:
 
