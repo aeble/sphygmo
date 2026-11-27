@@ -20,7 +20,7 @@ Planned next: sinks for Home Assistant, FHIR and Apple Health (via an iOS shortc
 | Beurer BM 81 easyLock | | standard profile expected; untested, reports welcome | `bluetooth_bps` |
 | any monitor with the [standard Blood Pressure Service](https://github.com/aeble/sphygmo/blob/main/docs/protocols/bluetooth-bps.md) (0x1810) | | driver written from the specification; untested on real devices | `bluetooth_bps` |
 | Omron X7 Smart (AFib) | | wanted | |
-| Withings BPM Connect | | BLE protocol unknown; readings also go to the Withings cloud over Wi-Fi, which has a public API | |
+| Withings BPM Connect | | vendor protocol (service `00000020-5749-5448-002d-000000000000`); advertises only in setup mode, syncs over Wi-Fi; Bluetooth sync under investigation. The Withings cloud has a public API | |
 | Hilo (formerly Aktiia) | | cuffless bracelet, BLE probably encrypted; not planned | |
 
 Other Transtek/Lifesense monitors that advertise a name like `1802A0` and expose service

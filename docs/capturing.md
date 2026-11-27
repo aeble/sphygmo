@@ -28,9 +28,25 @@ from the list, then let the measurement finish. The probe connects, lists all se
 characteristics, reads what is readable and records every packet for two minutes. It never
 writes to the device.
 
-If the monitor disappears before you have picked it, use `--match` with part of its
-advertised name, for example `sphygmo probe --match 02A0`, and start a measurement after
-launching the command.
+If the monitor disappears before you have picked it, start the probe with a filter first and
+then the measurement. The probe connects to the first device that matches:
+
+```bash
+sphygmo probe --match 02A0          # part of the advertised name
+sphygmo probe --company 0x03FF      # Bluetooth company ID from the manufacturer data
+sphygmo probe --service 1810        # an advertised service UUID, short or full
+```
+
+Many monitors send their name in only some packets; `--company` or `--service` then works
+better. Some devices stop advertising after the first connection attempt, even a failed one,
+so start the probe before the device (`--scan 120` waits two minutes for it) and give slow
+ones more time with `--connect-timeout 60`.
+
+The operating system may ask to pair the monitor when the probe connects. Accept it: some
+devices refuse service discovery or subscriptions without it.
+
+If connecting fails, the report is still written. It keeps the advertisement and names the
+stage that failed (`connect`, `read`, `subscribe` or `listen`).
 
 The report `sphygmo-probe.json` contains no Bluetooth address, and the serial number and
 system ID are overwritten with `ee` bytes wherever they appear. It **may contain your

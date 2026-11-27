@@ -23,9 +23,14 @@ def probe_main(argv: list[str]) -> None:
     ap.add_argument("--scan", type=float, default=15, help="scan seconds (default: %(default)s)")
     ap.add_argument("--listen", type=float, default=120, help="seconds to record packets (default: %(default)s)")
     ap.add_argument("--match", help="pick the first device whose name contains this text, without asking")
+    ap.add_argument("--service", help="pick the first device advertising this service UUID, e.g. 1810")
+    ap.add_argument("--company", type=lambda v: int(v, 0),
+                    help="pick the first device with this Bluetooth company ID, e.g. 0x03FF")
+    ap.add_argument("--connect-timeout", type=float, default=20,
+                    help="seconds for connecting and service discovery (default: %(default)s)")
     a = ap.parse_args(argv)
     logging.basicConfig(level=logging.WARNING)
-    run(a.out, a.scan, a.listen, a.match)
+    run(a.out, a.scan, a.listen, a.match, a.service, a.company, a.connect_timeout)
 
 
 def main() -> None:
