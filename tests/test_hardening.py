@@ -5,6 +5,8 @@ import os
 import stat
 from datetime import datetime, timezone
 
+import pytest
+
 from sphygmo import hub
 from sphygmo.drivers import transtek_7809 as t
 from sphygmo.drivers.base import Refused
@@ -12,6 +14,9 @@ from sphygmo.sinks.jsonl import JsonlSink
 from sphygmo.trust import TrustStore
 
 from test_transtek_7809 import READING_USER1, SERIAL, FakeClient
+
+# Windows has no POSIX mode bits; there the files are protected by the profile's ACL.
+posix_only = pytest.mark.skipif(os.name == "nt", reason="no POSIX file modes on Windows")
 
 A1 = bytes.fromhex("a11fcae970") + bytes(15)
 A0 = bytes.fromhex("a0a1b2c3d4") + bytes(15)
@@ -61,7 +66,8 @@ def test_pairing_in_pair_mode_trusts_device(tmp_path, monkeypatch):
     path = tmp_path / "devices.json"
     asyncio.run(_run([(t.STATUS, A0), (t.STATUS, A1)], TrustStore(path), pair=True))
     assert TrustStore(path).is_known("transtek_7809", "A1B2C3D4E5F6")
-    assert stat.S_IMODE(os.stat(path).st_mode) == 0o600
+    if os.name != "nt":
+        assert stat.S_IMODE(os.stat(path).st_mode) == 0o600
 
 
 def test_known_device_is_served(tmp_path):
@@ -124,6 +130,7 @@ def test_sink_failure_logs_raw(caplog, tmp_path):
     assert READING_USER1.hex() in caplog.text
 
 
+@posix_only
 def test_jsonl_file_is_private(tmp_path):
     path = tmp_path / "m.jsonl"
     asyncio.run(JsonlSink(path).write(t.parse_measurement(READING_USER1, datetime.now(timezone.utc))))
